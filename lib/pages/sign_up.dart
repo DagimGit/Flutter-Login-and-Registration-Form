@@ -1,8 +1,8 @@
 import 'package:dag/constants/routes.dart';
+import 'package:dag/services/auth/auth_exceptions.dart';
+import 'package:dag/services/auth/auth_service.dart';
 import 'package:dag/utilites/show_error.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -68,48 +68,78 @@ class _SignUpState extends State<SignUp> {
                 final email = _email.text;
                 final password = _password.text;
                 try {
-                  final credential = await FirebaseAuth.instance
-                      .createUserWithEmailAndPassword(
+                  await AuthService.firebase().createUser(
                     email: email,
                     password: password,
                   );
-                 final user= FirebaseAuth.instance.currentUser;//used to hold the currecnt user from firebase
-                  await user?.sendEmailVerification();//used to send an email verification in time of registration
+
+                  /*final credential = await FirebaseAuth.instance
+                      .createUserWithEmailAndPassword(
+                    email: email,
+                    password: password,
+                  );*/
+                  AuthService.firebase().sendEmailVerification();
+                  /*final user = FirebaseAuth.instance
+                      .currentUser; //used to hold the currecnt user from firebase
+                 await user
+                      ?.sendEmailVerification(); //used to send an email verification in time of registration
+                  */
                   Navigator.of(context).pushNamed(verifyemailroute);
-                  devtools.log(credential.toString());
                   //print(credential);
-                } on FirebaseAuthException catch (e) {
-                  if (e.code == 'weak-password') {
-                    await showErrorDialog(
-                      context,
-                      'The Password you proided is too weak',
-                    );
-                    //devtools.log('The Password you provided is too weak.');
-                    //print('The password provided is too weak.');
-                  } else if (e.code == 'email-already-in-use') {
-                    await showErrorDialog(
-                      context,
-                      'The account already exit',
-                    );
-                    //devtools.log('The account already exists for tha email.');
-                  } else if (e.code == 'invalid-email') {
-                    await showErrorDialog(
-                      context,
-                      'You enter invalid email',
-                    );
-                  } else {
-                    await showErrorDialog(
-                      context,
-                      'Error ${e.code}',
-                    );
-                  }
-                } catch (e){
+                } on WeakPasswordAuthException {
                   await showErrorDialog(
-                      context,
-                      e.toString(),
-                    );
+                    context,
+                    'The Password you proided is too weak',
+                  );
+                } on EmailAlreadyInUseAuthException {
+                  await showErrorDialog(
+                    context,
+                    'The account already exit',
+                  );
+                } on InvalidEmailAuthException {
+                  await showErrorDialog(
+                    context,
+                    'You enter invalid email',
+                  );
+                } on GenericAuthException {
+                  await showErrorDialog(
+                    context,
+                    'unable to register please try again later',
+                  );
                 }
               },
+              //   } on FirebaseAuthException catch (e) {
+              //     if (e.code == 'weak-password') {
+              //       await showErrorDialog(
+              //         context,
+              //         'The Password you proided is too weak',
+              //       );
+              //       //devtools.log('The Password you provided is too weak.');
+              //       //print('The password provided is too weak.');
+              //     } else if (e.code == 'email-already-in-use') {
+              //       await showErrorDialog(
+              //         context,
+              //         'The account already exit',
+              //       );
+              //       //devtools.log('The account already exists for tha email.');
+              //     } else if (e.code == 'invalid-email') {
+              //       await showErrorDialog(
+              //         context,
+              //         'You enter invalid email',
+              //       );
+              //     } else {
+              //       await showErrorDialog(
+              //         context,
+              //         'Error ${e.code}',
+              //       );
+              //     }
+              //   } catch (e) {
+              //     await showErrorDialog(
+              //       context,
+              //       e.toString(),
+              //     );
+              //   }
+              // },
               child: const Text('SignUp'),
             ),
           ),

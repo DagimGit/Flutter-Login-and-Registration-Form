@@ -1,12 +1,14 @@
 //to abstarct firebase authentication into our own provider
-import 'dart:math';
+//import 'dart:math';
 
+import 'package:dag/firebase_options.dart';
 import 'package:dag/services/auth/auth_user.dart';
 import 'package:dag/services/auth/auth_provider.dart';
 import 'package:dag/services/auth/auth_exceptions.dart';
 
 import 'package:firebase_auth/firebase_auth.dart'
     show FirebaseAuth, FirebaseAuthException;
+import 'package:firebase_core/firebase_core.dart';
 
 //import '../auth.dart/auth_provider.dart';
 //import 'package:firebase_core/firebase_core.dart';
@@ -110,5 +112,14 @@ class FirebaseAuthProvider implements AuthProvider {
       throw UserNotLoggedInAuthException();
     }
     throw UnimplementedError();
+  }
+
+  @override
+  Future<void> initalize() async {
+    // implement initalize
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions
+          .web, //for web we use .currentdevice for android
+    );
   }
 }

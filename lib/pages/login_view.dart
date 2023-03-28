@@ -1,9 +1,8 @@
 import 'package:dag/constants/routes.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dag/services/auth/auth_exceptions.dart';
+import 'package:dag/services/auth/auth_service.dart';
+import 'package:dag/utilites/show_error.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
-
-import '../utilites/show_error.dart';
 
 //import 'package:dag/main.dart';
 class LoginView extends StatefulWidget {
@@ -67,20 +66,24 @@ class _LoginViewState extends State<LoginView> {
                 final email = _email.text;
                 final password = _password.text;
                 try {
-                  final credential =
-                      await FirebaseAuth.instance.signInWithEmailAndPassword(
+                  await AuthService.firebase().logIn(
                     email: email,
                     password: password,
                   );
+                  /*await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    email: email,
+                    password: password,
+                  );*/
                   //check whether the email is verified or not? we use this or the next
                   /*Navigator.of(context).pushNamedAndRemoveUntil(
                     homeroute,
                     (route) => false,
                   );
                   */
-                  final user = FirebaseAuth.instance.currentUser;
+                  final user = AuthService.firebase().currentUser;
+                  // final user = FirebaseAuth.instance.currentUser;
 
-                  if (user?.emailVerified ?? false) {
+                  if (user?.isEmailVerifierd ?? false) {
                     //user's email is verified
                     Navigator.of(context).pushNamedAndRemoveUntil(
                       homeroute,
@@ -94,29 +97,45 @@ class _LoginViewState extends State<LoginView> {
                   }
 
                   //Navigator.of(context).pushAndRemoveUntil(, (route) => false);
-                  devtools.log(credential.toString());
-                  print(credential);
-                } on FirebaseAuthException catch (e) {
-                  if (e.code == 'user-not-found') {
-                    showErrorDialog(context, 'User not found');
-                    //devtools.log('No user found for that email');
-                    //print('No user found for that email.');
-                  } else if (e.code == 'wrong-password') {
-                    showErrorDialog(
-                        context, 'Please enter your correct password');
-                    //print('Wrong password provided for that user.');
-                  } else {
-                    await showErrorDialog(
-                      context,
-                      'Error: ${e.code}',
-                    );
-                  }
-                } catch (e) {
+                  //devtools.log(credential.toString());
+                  //print(credential);
+                } on UserNotFoundAuthException {
                   await showErrorDialog(
                     context,
-                    e.toString(),
+                    'User not found',
+                  );
+                } on WrongPasswordAuthException {
+                  await showErrorDialog(
+                    context,
+                    'Please enter the correct password',
+                  );
+                } on GenericAuthException {
+                  await showErrorDialog(
+                    context,
+                    'Unable to login please try again',
                   );
                 }
+                // } on FirebaseAuthException catch (e) {
+                //   if (e.code == 'user-not-found') {
+                //     showErrorDialog(context, 'User not found');
+                //     //devtools.log('No user found for that email');
+                //     //print('No user found for that email.');
+                //   } else if (e.code == 'wrong-password') {
+                //     showErrorDialog(
+                //         context, 'Please enter your correct password');
+                //     //print('Wrong password provided for that user.');
+                //   } else {
+                //     await showErrorDialog(
+                //       context,
+                //       'Error: ${e.code}',
+                //     );
+                //   }
+                // } catch (e) {
+                //   await showErrorDialog(
+                //     context,
+                //     e.toString(),
+                //   );
+                // }
               },
               child: const Text('Login'),
             ),

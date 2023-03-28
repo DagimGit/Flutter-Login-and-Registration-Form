@@ -4,6 +4,7 @@ so we need to creeate one authprovider class that encapsulate all of this provid
 import 'package:dag/services/auth/auth_user.dart';
 
 abstract class AuthProvider {
+  Future<void> initalize();
   AuthUser? get currentUser; // acess only create user
   Future<AuthUser> logIn({
     required String email,
