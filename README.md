@@ -1,5 +1,5 @@
 # Flutter-Login-and-Registration-Form
-Hello, This is a sample login and registartion form in flutter and firebase as a backend. However, before using this code you have to install firebase and create your project in firebase
+Hello,This is a sample login and registartion form in flutter and firebase as a backend. However, before using this code you have to install firebase and create your project in firebase
 
 Before getting started, you are able to create (or have an existing) Flutter project and also have an active Firebase account.
 Before any Firebase services can be used, you must first install the firebase_core plugin, which is responsible for connecting your application to Firebase.
